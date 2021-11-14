@@ -3,26 +3,54 @@ title: "p8105_hw5_xh2470"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup}
+library(tidyverse)
+library(readxl)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## R Markdown
+# Problem 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Problem 2
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+# Create a dataframe containing all file names
+df = tibble( filename = list.files(path = "./hw5_data"),
+             path = str_c("./hw5_data/", filename))
 
-```{r cars}
-summary(cars)
+
+# Iterate over file names and read in data for each subject 
+read_data = function(x) {
+  data = read_csv(x)
+  }
+
+df = 
+  df %>% 
+  mutate(data = purrr::map(pull(df,path), read_data)) 
+
+# Tidy the result
+df = 
+  df %>% 
+  unnest(data) %>% 
+  separate(filename, into = c("arm", "subject_ID"), sep = 3) %>% 
+  mutate(arm = recode(arm, `con` = "control", `exp` = "experiment" ),
+         subject_ID = substring(subject_ID,2,3)) %>% 
+  select(-path)
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
