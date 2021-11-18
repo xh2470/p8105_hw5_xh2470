@@ -153,9 +153,12 @@ results_df %>%
 
 # Problem 2
 
+Create a tidy dataframe.
+
 ```{r}
 # Create a dataframe containing all file names
-df = tibble( file = list.files(path = "./hw5_data", full.names = TRUE))
+df = 
+  tibble(file = list.files(path = "./p2_data", full.names = TRUE))
 
 
 # Iterate over file names and read in data for each subject 
@@ -165,16 +168,44 @@ read_data = function(x) {
 
 df = 
   df %>% 
-  mutate(data = purrr::map(pull(df,file), read_data)) 
+  mutate(data = purrr::map(file, read_data)) 
 
 # Tidy the result
 df = 
   df %>% 
   unnest(data) %>% 
-  separate(file, into = c("arm", "subject_ID"), sep = 3) %>% 
-  mutate(arm = recode(arm, `con` = "control", `exp` = "experiment" ),
-         subject_ID = substring(subject_ID,2,3)) 
+  pivot_longer(
+    week_1:week_8,
+    names_to = "Week",
+    values_to = "Data") %>% 
+  mutate(arm = substring(file,11,13),
+         Arm = recode(arm, `con` = "Control", `exp` = "Experiment" ),
+         Subject_ID = substring(file,15,16),
+         Week = substring(Week,6,6)) %>% 
+  select(-file,-arm) %>% 
+  relocate(Arm, Subject_ID) 
+
+
 ```
+
+Make a spaghetti plot.
+
+```{r}
+
+df %>% 
+  mutate(Week = as.numeric(Week)) %>% 
+  ggplot(aes(x = Week, y = Data, color = Subject_ID)) + 
+  geom_point(alpha = .5) + 
+  geom_line() +
+  facet_grid(. ~ Arm) +
+  labs(
+    title = "Observation of each subject over time",
+    x = "Week",
+    y = "Observation"
+  ) 
+```
+
+The plot shows that generally, subjects in the experiment group had higher observation than that of subjects in the control group. In the experiment group, observation increased with time. However, in the control group, the observation did not changed significantly over time, with a more stable trend compared with the experiment group.
 
 # Problem 3
 
