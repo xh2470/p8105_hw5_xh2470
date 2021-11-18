@@ -210,7 +210,7 @@ The plot shows that generally, subjects in the experiment group had higher obser
 # Problem 3
 
 ```{r}
-# loads the iris dataset 
+# loads the iris dataset. 
 set.seed(10)
 
 iris_with_missing = 
@@ -218,20 +218,22 @@ iris_with_missing =
   map_df(~replace(.x, sample(1:150, 20), NA)) %>%
   mutate(Species = as.character(Species))
 
-# fill in missing values
-fill_in_missing = function(vector) {
+# Write a function.
+fill_in_missing = function(x) {
   
-  if (is.numeric(vector)) 
-    {
-    vector = ifelse(is.na(vector), mean(vector, na.rm = TRUE), vector)
-    } 
-  
-  if (is.character(vector)) {
-    vector = ifelse(is.na(vector), "virginica", vector)
+  if (is.character(x)) {
+    x = ifelse(is.na(x), "virginica", x)
   } 
-  
+  else {
+    x = ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+    } 
   }
   
-x = purrr::map(iris_with_missing, fill_in_missing) 
+# fill in missing values.
+iris = 
+  map(iris_with_missing, fill_in_missing) %>% 
+  as_tibble()
+
+iris 
 ```
 
