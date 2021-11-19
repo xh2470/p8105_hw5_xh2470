@@ -185,6 +185,7 @@ df =
   select(-file,-arm) %>% 
   relocate(Arm, Subject_ID) 
 
+df
 
 ```
 
@@ -221,12 +222,15 @@ iris_with_missing =
 # Write a function.
 fill_in_missing = function(x) {
   
+  if (is.numeric(x)) {
+    x = replace_na(x, mean(x, na.rm = TRUE))
+    }
   if (is.character(x)) {
-    x = ifelse(is.na(x), "virginica", x)
-  } 
-  else {
-    x = ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-    } 
+    x = replace_na(x, "virginica")
+    }
+  
+  return(x)
+  
   }
   
 # fill in missing values.
